@@ -1,0 +1,25 @@
+info:
+  name: Actualizar repartidor
+  type: http
+  seq: 7
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/repartidores/1"
+  body:
+    type: json
+    data: |-
+      {
+        "nombre": "Hugo Actualizado",
+        "apellido": "Lopez",
+        "direccion": "Av. Nueva 456",
+        "numero_ruta": 8
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true

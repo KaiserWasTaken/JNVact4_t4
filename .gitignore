@@ -31,3 +31,18 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Environment and secrets ###
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+### Runtime files ###
+*.log
+*.pid
+
+### OS files ###
+.DS_Store
+Thumbs.db

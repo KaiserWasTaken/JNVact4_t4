@@ -1,0 +1,25 @@
+info:
+  name: Crear repartidor
+  type: http
+  seq: 5
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/repartidores"
+  body:
+    type: json
+    data: |-
+      {
+        "nombre": "Hugo",
+        "apellido": "Lopez",
+        "direccion": "Av. Principal 123",
+        "numero_ruta": 5
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true

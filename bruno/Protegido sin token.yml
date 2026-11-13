@@ -1,0 +1,13 @@
+info:
+  name: Protegido sin token
+  type: http
+  seq: 3
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/repartidores?page=0&size=10"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
