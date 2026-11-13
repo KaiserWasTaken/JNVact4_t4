@@ -9,6 +9,9 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.example.jnvact4_t4.service.InvalidCredentialsException;
+import com.example.jnvact4_t4.service.UsernameAlreadyExistsException;
+
 @RestControllerAdvice
 public class ApiExceptionHandler {
 
@@ -36,5 +39,20 @@ public class ApiExceptionHandler {
                 "error", "Bad Request",
                 "message", "El cuerpo de la solicitud no tiene un formato válido"));
     }
+
+    @ExceptionHandler(UsernameAlreadyExistsException.class)
+    public ResponseEntity<Map<String, Object>> handleUsernameAlreadyExists() {
+        return ResponseEntity.status(409).body(Map.of(
+                "status", 409,
+                "error", "Conflict",
+                "message", "El nombre de usuario ya está registrado"));
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<Map<String, Object>> handleInvalidCredentials() {
+        return ResponseEntity.status(401).body(Map.of(
+                "status", 401,
+                "error", "Unauthorized",
+                "message", "El usuario o la contraseña son incorrectos"));
+    }
 }
-6
