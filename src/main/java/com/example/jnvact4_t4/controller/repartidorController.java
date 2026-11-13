@@ -1,20 +1,23 @@
 package com.example.jnvact4_t4.controller;
 
-import java.util.List;
-
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import com.example.jnvact4_t4.dto.RepartidorRequestDto;
+import com.example.jnvact4_t4.dto.RepartidorCreateDto;
+import com.example.jnvact4_t4.dto.RepartidorPageDto;
 import com.example.jnvact4_t4.dto.RepartidorResponseDto;
+import com.example.jnvact4_t4.dto.RepartidorUpdateDto;
 import com.example.jnvact4_t4.service.repartidorService;
 
 @RestController
@@ -28,8 +31,9 @@ public class repartidorController {
     }
 
     @GetMapping
-    public ResponseEntity<List<RepartidorResponseDto>> getAll() {
-        return ResponseEntity.ok(repartidorService.getRepartidores());
+    public ResponseEntity<RepartidorPageDto> getAll(
+            @PageableDefault(size = 10) Pageable pageable) {
+        return ResponseEntity.ok(repartidorService.getRepartidores(pageable));
     }
 
     @GetMapping("/{repartidor_id}")
@@ -41,26 +45,27 @@ public class repartidorController {
     }
 
     @PostMapping
-    public ResponseEntity<RepartidorResponseDto> saveOrUpdate(
-            @Valid @RequestBody RepartidorRequestDto repartidor) {
-        boolean updating = repartidor.repartidor_id() != null;
+    public ResponseEntity<RepartidorResponseDto> create(
+            @Valid @RequestBody RepartidorCreateDto repartidor) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(repartidorService.create(repartidor));
+    }
 
-        if (updating && !repartidorService.exists(repartidor.repartidor_id())) {
-            return ResponseEntity.notFound().build();
-        }
-
-        RepartidorResponseDto saved = repartidorService.saveOrUpdate(repartidor);
-        HttpStatus status = updating ? HttpStatus.OK : HttpStatus.CREATED;
-        return ResponseEntity.status(status).body(saved);
+    @PutMapping("/{repartidor_id}")
+    public ResponseEntity<RepartidorResponseDto> update(
+            @PathVariable("repartidor_id") Long repartidor_id,
+            @Valid @RequestBody RepartidorUpdateDto repartidor) {
+        return repartidorService.update(repartidor_id, repartidor)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{repartidor_id}")
     public ResponseEntity<Void> delete(@PathVariable("repartidor_id") Long repartidor_id) {
-        if (!repartidorService.exists(repartidor_id)) {
+        if (!repartidorService.delete(repartidor_id)) {
             return ResponseEntity.notFound().build();
         }
 
-        repartidorService.delete(repartidor_id);
         return ResponseEntity.ok().build();
     }
 }

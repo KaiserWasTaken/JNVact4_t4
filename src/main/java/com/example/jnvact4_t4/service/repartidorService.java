@@ -1,12 +1,15 @@
 package com.example.jnvact4_t4.service;
 
-import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.example.jnvact4_t4.dto.RepartidorRequestDto;
+import com.example.jnvact4_t4.dto.RepartidorCreateDto;
+import com.example.jnvact4_t4.dto.RepartidorPageDto;
 import com.example.jnvact4_t4.dto.RepartidorResponseDto;
+import com.example.jnvact4_t4.dto.RepartidorUpdateDto;
 import com.example.jnvact4_t4.entity.repartidor;
 import com.example.jnvact4_t4.repository.repartidorRepository;
 
@@ -19,10 +22,14 @@ public class repartidorService {
         this.repartidorRepository = repartidorRepository;
     }
 
-    public List<RepartidorResponseDto> getRepartidores() {
-        return repartidorRepository.findAll().stream()
-                .map(this::toResponseDto)
-                .toList();
+    public RepartidorPageDto getRepartidores(Pageable pageable) {
+        Page<repartidor> page = repartidorRepository.findAll(pageable);
+        return new RepartidorPageDto(
+                page.map(this::toResponseDto).getContent(),
+                page.getNumber(),
+                page.getSize(),
+                page.getTotalElements(),
+                page.getTotalPages());
     }
 
     public Optional<RepartidorResponseDto> getRepartidor(Long repartidor_id) {
@@ -30,23 +37,39 @@ public class repartidorService {
                 .map(this::toResponseDto);
     }
 
-    public RepartidorResponseDto saveOrUpdate(RepartidorRequestDto dto) {
+    public RepartidorResponseDto create(RepartidorCreateDto dto) {
         repartidor repartidor = new repartidor();
-        repartidor.setRepartidor_id(dto.repartidor_id());
-        repartidor.setNombre(dto.nombre());
-        repartidor.setApellido(dto.apellido());
-        repartidor.setDireccion(dto.direccion());
-        repartidor.setNumero_ruta(dto.numero_ruta());
+        updateFields(repartidor, dto.nombre(), dto.apellido(), dto.direccion(), dto.numero_ruta());
 
         return toResponseDto(repartidorRepository.save(repartidor));
     }
 
-    public boolean exists(Long repartidor_id) {
-        return repartidorRepository.existsById(repartidor_id);
+    public Optional<RepartidorResponseDto> update(Long repartidor_id, RepartidorUpdateDto dto) {
+        return repartidorRepository.findById(repartidor_id)
+                .map(repartidor -> {
+                    updateFields(repartidor, dto.nombre(), dto.apellido(), dto.direccion(), dto.numero_ruta());
+                    return toResponseDto(repartidorRepository.save(repartidor));
+                });
     }
 
-    public void delete(Long repartidor_id) {
+    private void updateFields(
+            repartidor repartidor,
+            String nombre,
+            String apellido,
+            String direccion,
+            Integer numero_ruta) {
+        repartidor.setNombre(nombre);
+        repartidor.setApellido(apellido);
+        repartidor.setDireccion(direccion);
+        repartidor.setNumero_ruta(numero_ruta);
+    }
+
+    public boolean delete(Long repartidor_id) {
+        if (!repartidorRepository.existsById(repartidor_id)) {
+            return false;
+        }
         repartidorRepository.deleteById(repartidor_id);
+        return true;
     }
 
     public RepartidorResponseDto toResponseDto(repartidor repartidor) {
