@@ -37,3 +37,4 @@ public class ApiExceptionHandler {
                 "message", "El cuerpo de la solicitud no tiene un formato válido"));
     }
 }
+6
